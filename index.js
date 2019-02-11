@@ -1,8 +1,9 @@
 const express = require('express');
 const config = require('config');
-const bcrypt = require('bcrypt');
 const morgan = require('morgan');
-const dbconnect = require('./dbconnect');
+const db = require('./dbconnect');
+const register = require('./register');
+const validation = require('./validation');
 
 const app = express();
 
@@ -12,7 +13,7 @@ console.log('Is Dev Environment?: ' + isDev);
 
 // Setup Database Connection
 const dbInfo = config.get('dbInfo');
-const dbCon = new dbconnect.DBConnection(dbInfo);
+const dbCon = new db.DBConnection(dbInfo);
 
 // Turn input into JSON
 app.use(express.json());
@@ -20,28 +21,43 @@ app.use(express.json());
 if (isDev)
     app.use(morgan('tiny'));
 
+const a = '232;"--';
+console.log(db.sanitize(a));
+
 // Endpoints
 
 app.get('/', (req, res) => {
-    res.send(req.query);
+    res.send('test');
+    console.log(req.body);
 });
 
 app.post('/register', (req, res) => {
-    const username = req.body.username;
+    const username = db.sanitize(req.body.username).slice(1,-1);
     const password = req.body.password;
-    const cpassword = req.body.cpassword;
+    const cpassword = req.body.cassword;
+
+    // check if valid username
+    if (!validation.validateUsername(username)) {
+        res.send('{ "err": "Invalid Username" }');
+        return;
+    }
+
+    // check if valid password
+    if (!validation.validatePassword(password)) {
+        res.send('{ "err": "Invalid Password" }');
+        return;
+    }
 
     // check if passwords match
     if (password !== cpassword) {
+        res.send('{ "err": "Passwords Do Not Match" }');
         return;
     }
     // check if username already exists
 
-    // generate hash
-    bcrypt.hash(password, 10, function(err, hash) {
-        console.log(hash);
-        // store username and hash on server
-    });
+    register.registerUser(username, password, dbCon);
+
+    res.send('{ "msg": "Register Success" }');
 });
 
 

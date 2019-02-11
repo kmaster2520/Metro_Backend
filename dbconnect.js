@@ -18,9 +18,21 @@ class DBConnection {
         
     }
 
+    registerUser(username, hash) {
+        var sql = `INSERT INTO users (username, p_hash) VALUES ('${username}','${hash}');`;
+        //console.log(sql);
+        this.con.query(sql, function(err, res){
+            if (err) throw err;
+        });
+    }
+
 
 }
 
+function sanitize(input) {
+    return mysql.escape(input);
+}
+
 module.exports = {
-    DBConnection
+    DBConnection, sanitize
 }
