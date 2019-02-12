@@ -80,5 +80,4 @@ typings/
 .dynamodb/
 
 # environments
-config/**
-!config/.gitkeep
+config/*.json
