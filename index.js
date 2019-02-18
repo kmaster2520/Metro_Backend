@@ -2,7 +2,6 @@ const express = require('express');
 const config = require('config');
 const morgan = require('morgan');
 const db = require('./database/dbconnect');
-const register = require('./access/register');
 const validation = require('./util/validation');
 
 
@@ -53,49 +52,24 @@ app.get('/', (req, res) => {
 });
 
 // Register New User
+const register = require('./routes/register');
 app.post('/register', (req, res) => {
     // sanitize inputs
     const username = db.sanitize(req.body.username);
     const password = req.body.password;
     const cpassword = req.body.cassword;
+    const params = { username, password, cpassword };
 
-    // check if valid username
-    if (!validation.validateUsername(username)) {
-        sendMsg(res, 400, 'Invalid Username');
-
-        return;
-    }
-
-    // check if valid password
-    if (!validation.validatePassword(password)) {
-        sendMsg(res, 400, 'Invalid Password');
-        return;
-    }
-
-    // check if passwords match
-    if (password !== cpassword) {
-        sendMsg(res, 400, 'Passwords Do Not Match');
-        return;
-    }
-    // check if username already exists
-
-    // finally, register user
-    register.registerUser(username, password, dbCon, (err, rows) => {
-        if (err) {
-            console.log(err);
-            sendMsg(res, 500, 'Registration Error');
-        } else {
-            sendMsg(res, 200, 'Registration Successful');
-        }
-    });
-
-    
+    register(params, res, dbCon);
 });
 
-// Login User
+// Login Returning User
+const login = require('./routes/login');
 app.post('/login', (req, res) => {
     const username = db.sanitize(req.body.username);
     const password = req.body.password;
+    const params = { username, password };
+    login(params, res, dbCon);
 });
 
 app.delete('/deleteUser', (req, res) => {
