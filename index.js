@@ -2,7 +2,7 @@ const express = require('express');
 const config = require('config');
 const morgan = require('morgan');
 const db = require('./database/dbconnect');
-const validation = require('./util/validation');
+const sendMsg = require('./util/sendMsg');
 
 
 //// INITIALIZATION
@@ -18,23 +18,9 @@ const dbInfo = config.get('dbInfo');
 const dbCon = new db.DBConnection(dbInfo);
 
 
-//// DEFINE SIMPLE FUNCTIONS
+//// DEFINE SIMPLE FUNCTIONS ////
 
-// sends simple message
-function sendMsg(res, code, msg) {
-    res.status(code);
-    msg = { msg: msg };
-    res.send(msg);
-}
-
-// sends JSON object
-function sendObj(res, code, obj) {
-    res.status(code);
-    res.send(obj);
-}
-
-
-//// MIDDLEWARE
+//// MIDDLEWARE ////
 
 // Turn input into JSON
 app.use(express.json());
@@ -44,11 +30,25 @@ if (isDev)
     app.use(morgan('tiny'));
 
 
-//// ENDPOINTS
+//// ENDPOINTS ////
 
 // Test
 app.get('/', (req, res) => {
-    sendObj(res, 200, {value: 5, req: req.body});
+    sendMsg.obj(res, 200, {value: 5, req: req.body});
+});
+
+app.get('/rails', (req, res) => {
+    dbCon.getRails((err, rows) => {
+        if (err) {
+            sendMsg.msg(res, 500, '500 - Server Error');
+        } else {
+            rails = [];
+            for (var i = 0; i < rows.length; i++) {
+                rails.push(rows[i].id);
+            }
+            sendMsg.obj(res, 200, { rails: rails, count: rails.length });
+        }
+    });
 });
 
 // Register New User
@@ -59,7 +59,6 @@ app.post('/register', (req, res) => {
     const password = req.body.password;
     const cpassword = req.body.cassword;
     const params = { username, password, cpassword };
-
     register(params, res, dbCon);
 });
 
@@ -72,10 +71,14 @@ app.post('/login', (req, res) => {
     login(params, res, dbCon);
 });
 
+// Delete User
+const deleteUser = require('./routes/deleteUser');
 app.delete('/deleteUser', (req, res) => {
     const username = db.sanitize(req.body.username);
     const password = req.body.password;
-})
+    const params = { username, password };
+    deleteUser(params, res, dbCon);
+});
 
 
 

@@ -2,8 +2,6 @@ var mysql = require('mysql');
 
 /**
  * All SQL queries must be handled through this class
- * There should be no hashing, error handling, or sending responses here
- * except in constructor
  */
 
 class DBConnection {
@@ -18,31 +16,18 @@ class DBConnection {
 
     getRails(callback) {
         var sql = 'SELECT * FROM rail_lines'
-        this.con.query(sql, function(err, rows) {
+        this.con.query(sql, (err, rows) => {
             callback(err, rows);
         });
     }
 
-    userAlreadyExists(username, callback) {
+    userExistsWithPassword(username, password, callback) {
         var sql = `SELECT * FROM users WHERE username = '${username}'`;
-        this.con.query(sql, function(err, rows) {
-            callback(err, rows.length > 0); // true if user already exists
-        });
-    }
-
-    registerUser(username, hash, callback) {
-        var sql = `INSERT INTO users (username, p_hash) VALUES ('${username}','${hash}')`;
-        this.con.query(sql, function(err, rows) {
-            callback(err);
-        });
-    }
-
-    loginUser(username, password, callback) {
-        // we must retrieve the hash since bcrypt doesn't always generate the same hash
-        var sql = `SELECT * FROM users WHERE username='${username}'`;
-        this.con.query(sql, function(err, rows) {
-            if (!rows || rows.length <= 0) {
-                callback(err, false);
+        this.con.query(sql, (err, rows) => {
+            if (err) {
+                callback(err, false); // error
+            } else if (!rows || rows.length <= 0) {
+                callback(err, false); // no user exists
             } else {
                 // hash is stored as a blob, so must extract string
                 var hashCheck = Buffer.from(rows[0].p_hash).toString();
@@ -50,6 +35,38 @@ class DBConnection {
                     callback(err, ans);
                 });
             }
+        });
+    }
+
+    registerUser(username, hash, callback) {
+        var sql = `INSERT INTO users (username, p_hash) VALUES ('${username}','${hash}')`;
+        this.con.query(sql, (err, _) => {
+            callback(err);
+        });
+    }
+
+    deleteUser(username, password, callback) {
+        this.userExistsWithPassword(username, password, (err, ans) => {
+            if (err) {
+                callback(err, false);
+            } else {
+                var sql = `DELETE FROM users WHERE username='${username}'`;
+                this.con.query(sql, (err, rows) => {
+                    if (err) {
+                        callback(err, false);
+                    } else {
+                        callback(err, true);
+                    }
+                });
+            }
+        });
+
+    }
+
+    loginUser(username, password, callback) {
+        this.userExistsWithPassword(username, password, (err, ans) => {
+            callback(err, ans);
+            // do other stuff
         });
     }
 
