@@ -1,9 +1,12 @@
 const express = require('express');
 const config = require('config');
 const morgan = require('morgan');
-const db = require('./dbconnect');
-const register = require('./register');
-const validation = require('./validation');
+const db = require('./database/dbconnect');
+const register = require('./access/register');
+const validation = require('./util/validation');
+
+
+//// INITIALIZATION
 
 const app = express();
 
@@ -15,50 +18,90 @@ console.log('Is Dev Environment?: ' + isDev);
 const dbInfo = config.get('dbInfo');
 const dbCon = new db.DBConnection(dbInfo);
 
+
+//// DEFINE SIMPLE FUNCTIONS
+
+// sends simple message
+function sendMsg(res, code, msg) {
+    res.status(code);
+    msg = { msg: msg };
+    res.send(msg);
+}
+
+// sends JSON object
+function sendObj(res, code, obj) {
+    res.status(code);
+    res.send(obj);
+}
+
+
+//// MIDDLEWARE
+
 // Turn input into JSON
 app.use(express.json());
+
 // Log requests when in dev environment
 if (isDev)
     app.use(morgan('tiny'));
 
-const a = '232;"--';
-console.log(db.sanitize(a));
 
-// Endpoints
+//// ENDPOINTS
 
+// Test
 app.get('/', (req, res) => {
-    res.send('test');
-    console.log(req.body);
+    sendObj(res, 200, {value: 5, req: req.body});
 });
 
+// Register New User
 app.post('/register', (req, res) => {
-    const username = db.sanitize(req.body.username).slice(1,-1);
+    // sanitize inputs
+    const username = db.sanitize(req.body.username);
     const password = req.body.password;
     const cpassword = req.body.cassword;
 
     // check if valid username
     if (!validation.validateUsername(username)) {
-        res.send('{ "err": "Invalid Username" }');
+        sendMsg(res, 400, 'Invalid Username');
+
         return;
     }
 
     // check if valid password
     if (!validation.validatePassword(password)) {
-        res.send('{ "err": "Invalid Password" }');
+        sendMsg(res, 400, 'Invalid Password');
         return;
     }
 
     // check if passwords match
     if (password !== cpassword) {
-        res.send('{ "err": "Passwords Do Not Match" }');
+        sendMsg(res, 400, 'Passwords Do Not Match');
         return;
     }
     // check if username already exists
 
-    register.registerUser(username, password, dbCon);
+    // finally, register user
+    register.registerUser(username, password, dbCon, (err, rows) => {
+        if (err) {
+            console.log(err);
+            sendMsg(res, 500, 'Registration Error');
+        } else {
+            sendMsg(res, 200, 'Registration Successful');
+        }
+    });
 
-    res.send('{ "msg": "Register Success" }');
+    
 });
+
+// Login User
+app.post('/login', (req, res) => {
+    const username = db.sanitize(req.body.username);
+    const password = req.body.password;
+});
+
+app.delete('/deleteUser', (req, res) => {
+    const username = db.sanitize(req.body.username);
+    const password = req.body.password;
+})
 
 
 

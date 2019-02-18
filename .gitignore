@@ -81,3 +81,8 @@ typings/
 
 # environments
 config/*.json
+env/
+.env
+
+# extra file for testing things
+zplayground.js

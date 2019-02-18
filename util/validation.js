@@ -1,6 +1,26 @@
 
+/*
+Username and Password specs:
+
+Username must be:
+- at least 4 characters
+- at most 16 characters
+- contain only letters and digits
+
+Password must be:
+- at least 8 characters
+- contain only ASCII characters from ! to ~ (no spaces)
+
+Passwords are hashed using the BCrypt hash algorithm using 10 salt rounds.
+Each hash contains 60 characters for a total of 448(?) bits. Though smaller
+than other SHA algorithms, BCrypt hashing takes longer and therefore is more
+resistant to brute force attacks
+
+*/
+
+// Check if username is valid
 function validateUsername(username) {
-    if (password.length < 6 || password.length > 16) {
+    if (username.length < 4 || username.length > 16) {
         return false;
     }
 
@@ -14,6 +34,7 @@ function validateUsername(username) {
     return true;
 }
 
+// Check if password is valid (does not check if password is correct)
 function validatePassword(password) {
     if (password.length < 8) {
         return false;
@@ -27,6 +48,7 @@ function validatePassword(password) {
     return true;
 }
 
+// alphanumeric characters only
 function isLegalCharacterAN(c) {
     if ('A' <= c && c <= 'Z') {
         return true;
@@ -38,6 +60,7 @@ function isLegalCharacterAN(c) {
     return false;
 }
 
+// keyboard characters only
 function isLegalCharacterPassword(c) {
     if ('!' <= c && c <= '~') {
         return true;
