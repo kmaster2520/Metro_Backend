@@ -6,4 +6,4 @@ const metroLineSchema = new Schema({
   name: String
 });
 
-module.exports = mongoose.model('metroline', userSchema, 'metro_lines');
+module.exports = mongoose.model('metroline', metroLineSchema, 'metro_lines');

@@ -1,10 +1,7 @@
 const mongoose = require('mongoose');
 const User = require('../model/user');
+const MetroLine = require('../model/metro_line');
 
-/*const lineSchema = new Schema({
-  name: String
-});
-const lineModel = mongoose.model('line', lineSchema, 'metro_lines');*/
 
 class MongoDBConnection {
 
@@ -24,6 +21,7 @@ class MongoDBConnection {
     user.save((err, registeredUser) => {
       if (err) {
         console.log(err);
+        callback(null);
       } else {
         callback(registeredUser);
       }
@@ -34,23 +32,27 @@ class MongoDBConnection {
     User.findOne({ username }, (err, user) => {
       if (err) {
         console.log(err);
+        callback(null);
       } else {
         callback(user);
       }
     });
   }
 
-  /*
   getRails(callback) {
-    lineModel.find({}, (err, lines) => {
+    MetroLine.find({}, (err, lines) => {
       if (err) {
         console.log(err);
+        callback([]);
       } else {
-        callback(lines);
+        let lines_ = [];
+        for (let line of lines) {
+          lines_.push(line.name);
+        }
+        callback(lines_);
       }
     });
   }
-  */
 
 }
 
