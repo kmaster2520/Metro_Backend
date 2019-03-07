@@ -1,4 +1,6 @@
 const mongoose = require('mongoose');
+
+// Model
 const User = require('../model/user');
 const MetroLine = require('../model/metro_line');
 

@@ -13,8 +13,6 @@ const hash = require('../util/hash');
 const authToken = require('../util/authToken');
 const validation = require('../util/validation');
 
-const jwtSecretKey = config.get('jwtSecretKey') || 'secret key';
-
 
 // LOGIN
 router.post('/login', (req, res) => {
@@ -23,7 +21,7 @@ router.post('/login', (req, res) => {
 
   dbCon.getUserByName(username, (user) => {
     if (!user) {
-      res.status(200).send({ success: false, msg: "Incorrect Login"});
+      res.status(200).send({ success: false, msg: 'Incorrect Login' });
     } else {
       // check if password is correct
       hash.verifyHash(password, user.p_hash, (same) => {
@@ -32,7 +30,7 @@ router.post('/login', (req, res) => {
           const token = authToken.create({ subject: user.username });
           res.status(200).send({ success: true, token });
         } else {
-          res.status(200).send({ success: false, msg: "Incorrect Login"});
+          res.status(200).send({ success: false, msg: 'Incorrect Login' });
         }
       });
 
@@ -60,29 +58,29 @@ router.post('/register', (req, res) => {
 
   // generate hash
   hash.generateHash(password, (hash) =>  {
-  if (!hash) {
-    res.status(500).send({ msg: 'Server Error' });
-  } else {
+    if (!hash) {
+      res.status(500).send({ msg: 'Server Error' });
+    } else {
 
-    // check if username already exists
-    dbCon.getUserByName(username, (user) => {
-      if (user) {
+      // check if username already exists
+      dbCon.getUserByName(username, (user) => {
+        if (user) {
 
-        // add user to database
-        dbCon.registerUser(username, hash, (registeredUser) => {
-          if (registeredUser) {
-            res.status(200).send({ success: true });
-          } else {
-            res.status(500).send({ msg: 'Server Error' });
-          }
-        });
+          // add user to database
+          dbCon.registerUser(username, hash, (registeredUser) => {
+            if (registeredUser) {
+              res.status(200).send({ success: true });
+            } else {
+              res.status(500).send({ msg: 'Server Error' });
+            }
+          });
 
-      } else {
-        res.status(400).send({ msg: 'User Already Exists' });
-      }
-    });
+        } else {
+          res.status(400).send({ msg: 'User Already Exists' });
+        }
+      });
 
-  }
+    }
   });
 });
 
