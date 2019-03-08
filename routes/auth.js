@@ -21,7 +21,7 @@ router.post('/login', (req, res) => {
 
   dbCon.getUserByName(username, (user) => {
     if (!user) {
-      res.status(200).send({ success: false, msg: 'Incorrect Login' });
+      res.status(200).send({ success: false });
     } else {
       // check if password is correct
       hash.verifyHash(password, user.p_hash, (same) => {
@@ -30,7 +30,7 @@ router.post('/login', (req, res) => {
           const token = authToken.create({ subject: user.username });
           res.status(200).send({ success: true, token });
         } else {
-          res.status(200).send({ success: false, msg: 'Incorrect Login' });
+          res.status(200).send({ success: false });
         }
       });
 
@@ -66,7 +66,7 @@ router.post('/register', (req, res) => {
           // add user to database
           dbCon.registerUser(username, hash, (registeredUser) => {
             if (registeredUser) {
-              res.status(200).send({ success: true });
+              res.status(200).send({ msg: 'Register Successful' });
             } else {
               res.status(500).send({ msg: 'Server Error' });
             }
