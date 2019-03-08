@@ -41,13 +41,12 @@ router.post('/login', (req, res) => {
 
 // REGISTER
 router.post('/register', (req, res) => {
-
   let username = req.body.username;
   let password = req.body.password;
   let cpassword = req.body.cpassword;
 
   // validate params
-  let validation_err_string = errorsInUserInfo(usernname, password, cpassword);
+  let validation_err_string = validation.errorsInUserInfo(usernname, password, cpassword);
   if (validation_err_string) {
     res.status(400).send({ msg: validation_err });
     return;
@@ -79,30 +78,18 @@ router.post('/register', (req, res) => {
 
     }
   });
-
 });
 
+/*
+// DELETE USER
+router.delete('/deleteUser', (req, res) => {
+  let username = req.body.username;
+  let password = req.body.password;
+  let cpassword = req.body.cpassword;
 
+});
+*/
 
-function errorsInUserInfo(username, password, cpassword) {
-
-  // check if passwords match
-  if (password !== cpassword) {
-    return 'Passwords Don\'t Match';
-  }
-
-  // check if valid username
-  if (!validation.validateUsername(username)) {
-    return 'Username Invalid';
-  }
-
-  // check if valid password
-  if (!validation.validatePassword(password)) {
-    return 'Password Invalid';
-  }
-
-  return null;
-}
 
 
 

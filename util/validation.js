@@ -48,6 +48,27 @@ function validatePassword(password) {
   return true;
 }
 
+// check for errors in user info
+function errorsInUserInfo(username, password, cpassword) {
+
+  // check if passwords match
+  if (password !== cpassword) {
+    return 'Passwords Don\'t Match';
+  }
+
+  // check if valid username
+  if (!validation.validateUsername(username)) {
+    return 'Username Invalid';
+  }
+
+  // check if valid password
+  if (!validation.validatePassword(password)) {
+    return 'Password Invalid';
+  }
+
+  return null;
+}
+
 // alphanumeric characters only
 function isLegalCharacterAN(c) {
   if ('A' <= c && c <= 'Z') {
@@ -71,5 +92,5 @@ function isLegalCharacterPassword(c) {
 
 
 module.exports = {
-  validateUsername, validatePassword
+  validateUsername, validatePassword, errorsInUserInfo
 }
