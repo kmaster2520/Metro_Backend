@@ -47,24 +47,21 @@ router.post('/register', (req, res) => {
   let cpassword = req.body.cpassword;
 
   // validate params
-  if (!inputValidation(params, res))
-  return;
-
   let validation_err_string = errorsInUserInfo(usernname, password, cpassword);
   if (validation_err_string) {
     res.status(400).send({ msg: validation_err });
     return;
   }
 
-  // generate hash
-  hash.generateHash(password, (hash) =>  {
-    if (!hash) {
-      res.status(500).send({ msg: 'Server Error' });
+  // check if user exists
+  dbCon.getUserByName(username, (user) => {
+    if (user) {
+      res.status(400).send({ msg: 'User Already Exists' });
     } else {
 
-      // check if username already exists
-      dbCon.getUserByName(username, (user) => {
-        if (user) {
+      // generate hash
+      hash.generateHash(password, (hash) =>  {
+        if (hash) {
 
           // add user to database
           dbCon.registerUser(username, hash, (registeredUser) => {
@@ -76,16 +73,24 @@ router.post('/register', (req, res) => {
           });
 
         } else {
-          res.status(400).send({ msg: 'User Already Exists' });
+          res.status(500).send({ msg: 'Server Error' });
         }
       });
 
     }
   });
+
 });
 
 
+
 function errorsInUserInfo(username, password, cpassword) {
+
+  // check if passwords match
+  if (password !== cpassword) {
+    return 'Passwords Don\'t Match';
+  }
+
   // check if valid username
   if (!validation.validateUsername(username)) {
     return 'Username Invalid';
@@ -94,11 +99,6 @@ function errorsInUserInfo(username, password, cpassword) {
   // check if valid password
   if (!validation.validatePassword(password)) {
     return 'Password Invalid';
-  }
-
-  // check if passwords match
-  if (password !== cpassword) {
-    return 'Passwords Don\'t Match';
   }
 
   return null;
