@@ -24,7 +24,7 @@ function validateUsername(username) {
     return false;
   }
 
-  console.log(username)
+  //console.log(username)
   for (i = 0; i < username.length; i++) {
     c = username.charAt(i);
     if (!isLegalCharacterAN(c)) {
@@ -57,12 +57,12 @@ function errorsInUserInfo(username, password, cpassword) {
   }
 
   // check if valid username
-  if (!validation.validateUsername(username)) {
+  if (!validateUsername(username)) {
     return 'Username Invalid';
   }
 
   // check if valid password
-  if (!validation.validatePassword(password)) {
+  if (!validatePassword(password)) {
     return 'Password Invalid';
   }
 
