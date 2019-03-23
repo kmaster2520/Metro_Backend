@@ -1,8 +1,8 @@
 const mongoose = require('mongoose');
 
 // Model
-const User = require('../model/user');
-const MetroLine = require('../model/metro_line');
+const User = require('../database_model/user');
+const MetroLine = require('../database_model/metro_line');
 
 
 class MongoDBConnection {
@@ -19,7 +19,13 @@ class MongoDBConnection {
   }
 
   registerUser(username, hash, callback) {
-    const user = User({username, p_hash: hash, role: 0});
+    const user = User({
+      username,
+      p_hash: hash,
+      role: 'U',
+      dateCreated: new Date(Date.now()),
+      isSuspended: false
+    });
     user.save((err, registeredUser) => {
       if (err) {
         console.log(err);

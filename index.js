@@ -1,14 +1,18 @@
 const express = require('express');
 const config = require('config');
 const morgan = require('morgan');
+const middleware = require('./util/middleware');
 const MongoDBConnection = require('./database/mongodbconnect');
 
 
 //// INITIALIZATION
 
 const app = express();
+//
 const auth = require('./routes/auth');
-const data = require('./routes/data');
+const stations = require('./routes/stations');
+const trips = require('./routes/trips');
+const smartcards = require('./routes/smartcards');
 
 // Get Environment
 const isDev = config.get('development');
@@ -23,41 +27,28 @@ console.log('Is Dev Environment?: ' + isDev);
 
 // Turn input into JSON
 app.use(express.json());
-
 // Add headers
-app.use(function (req, res, next) {
-  // Website you wish to allow to connect
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  // Request methods you wish to allow
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
-  // Request headers you wish to allow
-  res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With, content-type, Authorization');
-  // Set to true if you need the website to include cookies in the requests sent
-  // to the API (e.g. in case you use sessions)
-  res.setHeader('Access-Control-Allow-Credentials', true);
-
-  next();
-});
-
+app.use(middleware.headers);
 // Log requests when in dev environment
 if (isDev)
-  app.use(morgan('tiny'));
+  app.use(middleware.logger); 
 
 
 //// ENDPOINTS ////
 
 // Authentication
 app.use('/auth', auth);
-
-// Data
-app.use('/data', data);
+// Trips
+app.use('/trips', trips);
+// Stations
+app.use('/stations', stations);
+// Smartcards
+app.use('/smartcards', smartcards);
 
 // Test
 app.get('/', (req, res) => {
   res.send(req.body);
 });
-
-
 
 
 

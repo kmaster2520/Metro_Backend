@@ -46,6 +46,12 @@ router.post('/login', (req, res) => {
 });
 
 
+// LOGOUT
+router.post('/logout', (req, res) => {
+  res.status(501).send({});
+});
+
+
 // REGISTER
 router.post('/register', (req, res) => {
   let username = req.body.username;
@@ -95,15 +101,16 @@ router.post('/register', (req, res) => {
   checkIfUserExists();
 });
 
-/*
-// DELETE USER
-router.delete('/deleteUser', (req, res) => {
-  let username = req.body.username;
-  let password = req.body.password;
-  let cpassword = req.body.cpassword;
 
+// DELETE USER
+router.delete('/delete', (req, res) => {
+  res.status(501).send({});
 });
-*/
+
+// (UN)SUSPEND CARD
+router.patch('/suspend', (req, res) => {
+  res.status(501).send({});
+});
 
 
 
