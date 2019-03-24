@@ -34,7 +34,14 @@ router.post('/login', (req, res) => {
   function authorizeUser(user) {
     hash.verifyHash(password, user.p_hash, (same) => {
       if (same) {
-        const token = authToken.create({ subject: user });
+        const tokenInfo = { 
+          user: user.username, 
+          role: user.role, 
+          isSuspended: user.isSuspended
+        };
+        const token = authToken.create(tokenInfo);
+        console.log(token);
+
         res.status(200).send({ token });
       } else {
         res.status(200).send({});
