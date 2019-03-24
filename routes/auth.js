@@ -16,28 +16,28 @@ const validation = require('../util/validation');
 
 // LOGIN
 router.post('/login', (req, res) => {
-  let username = req.body.username;
+  let username = req.body.username.toLowerCase();
   let password = req.body.password;
 
   // check if user exists, if not, return failed login
   function checkIfUserExists() {
     dbCon.getUserByName(username, (user) => {
       if (!user) {
-        res.status(200).send({ success: false });
+        res.status(200).send({});
       } else {
-        verifyHash(user.p_hash);
+        authorizeUser(user);
       }
     });
   }
 
   // verify hash, if correct, sent JSON web token
-  function verifyHash(check_hash) {
-    hash.verifyHash(password, check_hash, (same) => {
+  function authorizeUser(user) {
+    hash.verifyHash(password, user.p_hash, (same) => {
       if (same) {
-        const token = authToken.create({ subject: username });
-        res.status(200).send({ success: true, token });
+        const token = authToken.create({ subject: user });
+        res.status(200).send({ token });
       } else {
-        res.status(200).send({ success: false });
+        res.status(200).send({});
       }
     });
   }
@@ -89,7 +89,7 @@ router.post('/register', (req, res) => {
 
   // send user data to database
   function registerUser(p_hash) {
-    dbCon.registerUser(username, p_hash, (registeredUser) => {
+    dbCon.registerUser(username, p_hash, 'U', (registeredUser) => {
       if (registeredUser) {
         res.status(200).send({ msg: 'Register Successful' });
       } else {
@@ -103,12 +103,12 @@ router.post('/register', (req, res) => {
 
 
 // DELETE USER
-router.delete('/delete', (req, res) => {
+router.delete('/delete', authToken.verify, (req, res) => {
   res.status(501).send({});
 });
 
 // (UN)SUSPEND CARD
-router.patch('/suspend', (req, res) => {
+router.patch('/suspend', authToken.verify, (req, res) => {
   res.status(501).send({});
 });
 

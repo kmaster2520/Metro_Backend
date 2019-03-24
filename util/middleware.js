@@ -17,5 +17,5 @@ function headers(req, res, next) {
 
 module.exports = {
   headers,
-  logger: morgan('tiny'),
+  logger: morgan('tiny')
 }

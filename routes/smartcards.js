@@ -21,6 +21,7 @@ router.delete('/delete', (req, res) => {
 
 // RELOAD CARD
 router.post('/reload', (req, res) => {
+  let amount = req.body.amount;
   res.status(501).send({});
 });
 

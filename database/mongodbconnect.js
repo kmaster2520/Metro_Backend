@@ -9,7 +9,7 @@ class MongoDBConnection {
 
   constructor(dbInfo) {
     const db_connection_string = `mongodb+srv://${dbInfo.user}:${dbInfo.password}@${dbInfo.database}`;
-    mongoose.connect(db_connection_string, err => {
+    mongoose.connect(db_connection_string, {useNewUrlParser: true}, err => {
       if (err) {
         console.log('Error ' + err);
       } else {
@@ -18,11 +18,11 @@ class MongoDBConnection {
     });
   }
 
-  registerUser(username, hash, callback) {
+  registerUser(username, hash, role, callback) {
     const user = User({
       username,
       p_hash: hash,
-      role: 'U',
+      role,
       dateCreated: new Date(Date.now()),
       isSuspended: false
     });

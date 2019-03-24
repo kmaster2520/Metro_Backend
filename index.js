@@ -1,9 +1,7 @@
 const express = require('express');
 const config = require('config');
-const morgan = require('morgan');
 const middleware = require('./util/middleware');
-const MongoDBConnection = require('./database/mongodbconnect');
-
+const authToken = require('./util/authToken');
 
 //// INITIALIZATION
 
@@ -39,11 +37,11 @@ if (isDev)
 // Authentication
 app.use('/auth', auth);
 // Trips
-app.use('/trips', trips);
+app.use('/trips', authToken.verify, trips);
 // Stations
-app.use('/stations', stations);
+app.use('/stations', authToken.verify, stations);
 // Smartcards
-app.use('/smartcards', smartcards);
+app.use('/cards', authToken.verify, smartcards);
 
 // Test
 app.get('/', (req, res) => {
