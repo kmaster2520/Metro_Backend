@@ -22,15 +22,15 @@ function decode(token) {
 
 function verify(req, res, next) {
   if (!req.headers.authorization) {
-    return res.status(401).send({ msg: 'Unauthorized1'});
+    return res.status(401).send({ msg: 'Unauthorized'});
   }
   let token = req.headers.authorization.split(' ')[1];
   if (token == null || token === 'null') {
-    return res.status(401).send({ msg: 'Unauthorized2'});
+    return res.status(401).send({ msg: 'Unauthorized'});
   }
   let payload = decode(token);
   if (!payload) {
-    return res.status(401).send({ msg: 'Unauthorized3'});
+    return res.status(401).send({ msg: 'Unauthorized'});
   }
   if (moment.unix() -  payload.iat >= keyLifespan) {
     return res.status(401).send({ msg: 'Session Expired'});

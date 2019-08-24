@@ -9,10 +9,19 @@ The back end of the Metro sample app is implemented in Node.
 Create a file called `development.json` in the config folder that looks like this:
 ```
 {
+  "development": true,
   "mongoDB_info": {
     "user": "",
     "password": "",
-    "database": ""
+    "database": "
+  },
+  "admin_info": {
+    "user": "",
+    "password": ""
+  },
+  "jwt": {
+    "secret": "",
+    "lifespan": 0
   }
 }
 ```
