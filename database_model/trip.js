@@ -9,4 +9,4 @@ const tripSchema = new Schema({
   fare: Number
 });
 
-module.exports = mongoose.model('trip', userSchema, 'trips');
+module.exports = mongoose.model('trip', tripSchema, 'trips');
